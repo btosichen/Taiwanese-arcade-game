@@ -362,16 +362,6 @@
         };
 
         // The 24-slot board layout configuration (indices 0-23)
-        // Arranged to distribute high/low value items
-        const boardLayoutKeys = [
-            'orange', 'bell', 'bar', 'bell', 'orange', 'apple',   // Top Row (0-5)
-            'lemon', 'apple', 'seven', 'water', 'star',           // Right Col (6-10)
-            'apple', 'lemon', 'bell', 'orange', 'apple', 'seven', // Bottom Row (11-16)
-            'water', 'star', 'apple', 'lemon', 'bell', 'orange', 'apple' // Left Col (17-23) ... wait, too many
-        ];
-        
-        // Let's manually define the 24 positions to ensure balance
-        // 24 positions.
         const boardMap = [
             'orange', 'bell', 'bar', 'bell', 'orange', 'apple', 'apple', // 0-6 (Top)
             'lemon', 'seven', 'water', 'star', 'apple',             // 7-11 (Right)
@@ -457,7 +447,7 @@
             });
         }
 
-        // --- AUDIO SYSTEM (Web Audio API) ---
+        // --- AUDIO SYSTEM (Web Audio API) - ENHANCED ---
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
@@ -474,24 +464,63 @@
             const now = audioCtx.currentTime;
 
             if (type === 'tick') {
+                // Running light sound (Woodblock style)
                 osc.type = 'square';
-                osc.frequency.setValueAtTime(400, now);
-                osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.03);
                 gain.gain.setValueAtTime(0.05, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.05);
+                gain.gain.linearRampToValueAtTime(0, now + 0.03);
                 osc.start(now);
-                osc.stop(now + 0.05);
-            } else if (type === 'win') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(500, now);
-                osc.frequency.linearRampToValueAtTime(1000, now + 0.1);
-                osc.frequency.linearRampToValueAtTime(500, now + 0.2);
-                osc.frequency.linearRampToValueAtTime(1500, now + 0.4);
+                osc.stop(now + 0.03);
+
+            } else if (type === 'bet') {
+                // Bet coin sound (High pitch ping)
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1200, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
                 gain.gain.setValueAtTime(0.1, now);
-                gain.gain.linearRampToValueAtTime(0, now + 0.5);
+                gain.gain.linearRampToValueAtTime(0, now + 0.1);
                 osc.start(now);
-                osc.stop(now + 0.5);
+                osc.stop(now + 0.1);
+
+            } else if (type === 'start') {
+                // Start spin sound (Power up)
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.linearRampToValueAtTime(880, now + 0.2);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+
+            } else if (type === 'clear') {
+                // Clear sound (Low cancel)
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.linearRampToValueAtTime(50, now + 0.15);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+
+            } else if (type === 'win') {
+                // Win fanfare (Major chord arpeggio)
+                osc.type = 'triangle';
+                // C Major Arpeggio
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0.1, now + 0.4);
+                gain.gain.linearRampToValueAtTime(0, now + 0.6);
+                
+                osc.start(now);
+                osc.stop(now + 0.6);
+
             } else if (type === 'lose') {
+                // Lose sound (Sliding down)
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(200, now);
                 osc.frequency.linearRampToValueAtTime(50, now + 0.3);
@@ -523,7 +552,7 @@
                 currentBets[key]++;
                 totalBet++;
                 updateUI();
-                initAudio(); // Ensure audio starts on user interaction
+                playSound('bet'); // SOUND
             } else {
                 log("No Credits! / 點數不足");
             }
@@ -538,16 +567,12 @@
             totalBet = 0;
             Object.keys(currentBets).forEach(k => currentBets[k] = 0);
             updateUI();
+            playSound('clear'); // SOUND
             log("Bets Cleared / 已清除");
         }
 
         function maxBet() {
             if (isSpinning) return;
-            // Simplified Max Bet: Add 1 to every symbol if afforded, or just fill apple/orange
-            // Let's just try to put 1 on everything, then 2 on everything...
-            // Or just add 10 to random?
-            // Prompt says: "Quickly set bet to a reasonable max (e.g. 10)".
-            // Strategy: Reset, then try to put 2 on Apple, Orange, Bell, Lemon, Star (Total 10)
             
             clearBet(); // First return everything
             
@@ -566,6 +591,7 @@
                  }
             }
             updateUI();
+            playSound('bet'); // SOUND
         }
 
         function log(text) {
@@ -579,22 +605,16 @@
                 return;
             }
             
+            playSound('start'); // SOUND
             isSpinning = true;
             currentWin = 0;
             updateUI();
             log("Spinning... / 跑燈中...");
             
             let speed = 50; // Start speed
-            let rounds = 0;
-            const minRounds = 3; // Go around at least 3 times
-            const targetRounds = minRounds + Math.random() * 2;
             
-            // Determine result beforehand (Weighted Random)
-            // Actually, we can just spin and land on a random index.
-            // The board array distribution *is* the probability distribution.
+            // Determine result beforehand (Weighted Random via Board Layout)
             const targetIndex = Math.floor(Math.random() * finalBoard.length);
-            const totalSteps = (finalBoard.length * 4) + targetIndex - activeIndex; 
-            // Logic: current pos -> end of loops -> target
             
             // Simple animation loop
             let stepCount = 0;
@@ -604,20 +624,11 @@
                 document.getElementById(`slot-${activeIndex}`).classList.remove('active');
                 activeIndex = (activeIndex + 1) % finalBoard.length;
                 document.getElementById(`slot-${activeIndex}`).classList.add('active');
-                playSound('tick');
+                playSound('tick'); // SOUND
 
                 stepCount++;
 
-                // Calculate Speed
-                // Decelerate logic:
-                // We want to run fast, then slow down near the "target" logic.
-                // Since we picked a random target purely by index, we can just simulate time.
-                
-                // Alternative approach: Use a counter.
-                // Run fast for X steps, then slow down for Y steps.
-                
-                // Let's just use a simple "Run until random slows down"
-                
+                // Logic to simulate mechanical slowing down
                 if (stepCount < 50) {
                     speed = 40;
                 } else if (stepCount < 80) {
@@ -628,9 +639,13 @@
                     speed += 30;
                 }
 
-                // Stop condition
+                // Stop condition: Slow enough AND Landed on target
+                // Actually, arcade machines often pre-calculate. 
+                // Let's just ensure we stop around the target index after minimum spins.
+                
+                // Simplified stop logic for smoother UX without complex math:
+                // Just stop when speed is very slow.
                 if (speed > 300 && stepCount > 60) {
-                     // Stop!
                      finishSpin();
                      return;
                 }
@@ -652,7 +667,7 @@
             
             if (winAmount > 0) {
                 currentWin = winAmount;
-                playSound('win');
+                playSound('win'); // SOUND
                 log(`<span style="color:yellow">WIN! ${symbolData.label} x${symbolData.mult}</span><br>Win: ${winAmount}`);
                 updateUI();
                 
@@ -684,6 +699,7 @@
             
             doubleModal.style.display = "none";
             updateUI();
+            playSound('bet'); // Generic sound for taking coins
             log("Winner! Credits added.");
         }
 
@@ -721,11 +737,11 @@
                 currentWin = currentWin * 2;
                 document.getElementById('double-current-win').textContent = currentWin;
                 document.getElementById('double-result-text').textContent = "YOU WON! Double Again?";
-                playSound('win');
+                playSound('win'); // SOUND
                 document.getElementById('double-controls').style.display = 'flex'; // Show buttons again
             } else {
                 currentWin = 0;
-                playSound('lose');
+                playSound('lose'); // SOUND
                 document.getElementById('double-result-text').textContent = "YOU LOST. Bad luck.";
                 
                 setTimeout(() => {
