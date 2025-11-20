@@ -3,24 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Little Mary Arcade - 小瑪莉</title>
+    <title>Little Mary Arcade - 歡樂小瑪莉</title>
     <style>
         /* --- CSS STYLES --- */
         :root {
-            --bg-color: #1a1a1a;
-            --board-bg: #2c3e50;
-            --led-off: #444;
-            --led-on: #f00;
-            --accent: #f1c40f;
-            --text-color: #fff;
-            --neon-green: #39ff14;
-            --neon-pink: #ff007f;
+            /* 活潑配色：糖果色系 */
+            --bg-gradient: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); /* 薄荷藍漸層 */
+            --cabinet-bg: #ffffff;
+            --cabinet-border: #ff9ff3; /* 粉紅色邊框 */
+            --board-bg: #ffeaa7; /* 鵝黃色底板 */
+            --slot-bg: #ffffff;
+            --slot-border: #fab1a0;
+            --led-on-bg: #ff7675; /* 選中時的顏色(紅) */
+            --led-on-border: #d63031;
+            --text-color: #2d3436;
+            
+            --btn-shadow: rgba(0, 0, 0, 0.15);
         }
 
         body {
-            background-color: #000;
+            background: var(--bg-gradient);
             color: var(--text-color);
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Varela Round', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* 圓潤字體 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -28,17 +32,18 @@
             min-height: 100vh;
             margin: 0;
             user-select: none;
+            padding: 10px;
         }
 
         /* Game Cabinet Container */
         .cabinet {
-            background-color: var(--bg-color);
-            border: 4px solid #555;
-            border-radius: 15px;
-            padding: 15px;
+            background-color: var(--cabinet-bg);
+            border: 8px solid var(--cabinet-border);
+            border-radius: 25px;
+            padding: 20px;
             width: 95%;
             max-width: 600px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* 柔和陰影 */
             position: relative;
         }
 
@@ -46,125 +51,143 @@
         .scoreboard {
             display: flex;
             justify-content: space-between;
-            background: #000;
-            border: 2px solid #777;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 8px;
+            background: #74b9ff; /* 天空藍 */
+            border: none;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            color: white;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
 
         .score-box {
             text-align: center;
             width: 30%;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 5px;
         }
 
         .score-label {
-            font-size: 0.8rem;
-            color: #aaa;
+            font-size: 0.9rem;
+            color: #f0f0f0;
             margin-bottom: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
         }
 
         .score-value {
             font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--neon-green);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            text-shadow: 0 0 5px var(--neon-green);
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
         }
 
-        #win-display { color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); }
+        #win-display { color: #ffeaa7; }
 
         /* Main Board - The Loop */
         .game-board {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             grid-template-rows: repeat(7, 1fr);
-            gap: 4px;
+            gap: 6px;
             aspect-ratio: 1/1;
-            background-color: #000;
-            padding: 5px;
-            border-radius: 10px;
-            margin-bottom: 15px;
+            background-color: var(--board-bg);
+            padding: 10px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border: 4px solid #fab1a0;
         }
 
         .slot {
-            background-color: var(--board-bg);
-            border-radius: 4px;
+            background-color: var(--slot-bg);
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
             position: relative;
-            border: 2px solid #444;
+            border: 3px solid var(--slot-border);
             transition: all 0.1s;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.05);
+            color: #333;
         }
 
         .slot.active {
-            background-color: #fff;
-            border-color: var(--led-on);
-            box-shadow: 0 0 15px var(--led-on) inset, 0 0 10px var(--led-on);
-            transform: scale(1.05);
+            background-color: var(--led-on-bg);
+            border-color: var(--led-on-border);
+            box-shadow: 0 0 15px var(--led-on-bg), 0 5px 0 rgba(0,0,0,0.2);
+            transform: scale(1.1);
             z-index: 10;
+            color: white;
         }
+        
+        .slot.active .mult { color: #ffeaa7; font-weight: bold; }
 
-        .slot span.icon { font-size: 1.4rem; }
-        .slot span.mult { font-size: 0.6rem; color: #ffd700; margin-top: 2px; }
+        .slot span.icon { font-size: 1.6rem; line-height: 1.2; }
+        .slot span.mult { font-size: 0.7rem; color: #888; margin-top: 2px; font-weight: bold; }
 
         /* Center Panel (Inside the loop) */
         .center-panel {
             grid-column: 2 / span 5;
             grid-row: 2 / span 5;
-            background: #222;
-            border-radius: 10px;
+            background: #ffffff;
+            border-radius: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
             padding: 10px;
-            border: 2px dashed #444;
+            border: 4px dashed #fab1a0; /* 虛線框 */
         }
 
         .center-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--accent);
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #ff7675;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 0 #000;
+            text-shadow: 2px 2px 0 #ffeaa7;
+            font-family: 'Arial Rounded MT Bold', 'Varela Round', sans-serif;
         }
 
         .message-log {
-            font-size: 0.9rem;
-            color: #fff;
-            min-height: 40px;
-            background: rgba(0,0,0,0.5);
+            font-size: 1rem;
+            color: #636e72;
+            min-height: 50px;
+            background: #f1f2f6;
             width: 90%;
-            padding: 5px;
-            border-radius: 4px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Control Panel */
         .controls {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
 
         /* Betting Buttons */
         .bet-panel {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            background: #333;
-            padding: 10px;
-            border-radius: 8px;
+            gap: 10px;
+            background: #ffeaa7;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #fdcb6e;
         }
 
         .bet-btn {
-            background: linear-gradient(to bottom, #e67e22, #d35400);
+            background: linear-gradient(to bottom, #fdcb6e, #e1b12c); /* 橘黃色 */
             border: none;
-            border-radius: 5px;
+            border-radius: 12px;
             padding: 8px 2px;
             color: white;
             font-weight: bold;
@@ -172,67 +195,89 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 4px 0 #a04000;
-            active: translateY(2px);
+            box-shadow: 0 5px 0 #b78d16;
+            transition: transform 0.1s;
         }
 
         .bet-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 #a04000;
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #b78d16;
         }
 
-        .bet-btn .bet-icon { font-size: 1.2rem; }
-        .bet-btn .bet-amount { font-size: 0.8rem; color: #fff; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 10px; margin-top: 2px;}
+        .bet-btn .bet-icon { font-size: 1.4rem; filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.1)); }
+        .bet-btn .bet-amount { 
+            font-size: 0.9rem; 
+            color: #636e72; 
+            background: #fff; 
+            padding: 2px 8px; 
+            border-radius: 10px; 
+            margin-top: 4px;
+            font-weight: 900;
+            min-width: 20px;
+        }
 
         /* Main Action Buttons */
         .action-row {
             display: flex;
-            gap: 10px;
-            height: 50px;
+            gap: 12px;
+            height: 60px;
         }
 
         .btn-action {
             border: none;
-            border-radius: 8px;
-            font-weight: bold;
+            border-radius: 15px;
+            font-weight: 900;
             color: white;
             cursor: pointer;
             flex: 1;
             text-transform: uppercase;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.5);
+            box-shadow: 0 6px 0 rgba(0,0,0,0.15);
             transition: transform 0.1s;
+            font-size: 1.1rem;
         }
 
-        .btn-action:active { transform: translateY(4px); box-shadow: none; }
+        .btn-action:active { transform: translateY(6px); box-shadow: none; }
 
-        .btn-red { background: #c0392b; }
-        .btn-green { background: #27ae60; }
-        .btn-blue { background: #2980b9; font-size: 1.2rem; flex: 2; }
+        .btn-red { background: #ff7675; box-shadow: 0 6px 0 #d63031; } /* 粉紅/紅 */
+        .btn-green { background: #55efc4; box-shadow: 0 6px 0 #00b894; color: #006266; } /* 薄荷綠 */
+        .btn-blue { background: #74b9ff; box-shadow: 0 6px 0 #0984e3; flex: 2; font-size: 1.4rem;} /* 藍色 */
 
         /* Double Up Modal */
         #double-modal {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(255, 255, 255, 0.95); /* 半透明白 */
             display: none; /* Hidden by default */
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 100;
-            border-radius: 12px;
+            border-radius: 20px;
         }
 
         .modal-content {
             text-align: center;
-            color: white;
+            color: #2d3436;
+            width: 80%;
+        }
+        
+        .modal-content h2 {
+            color: #6c5ce7;
+            font-size: 2rem;
+            margin: 0;
         }
 
         .big-number {
-            font-size: 5rem;
-            font-weight: bold;
-            color: var(--accent);
-            margin: 20px 0;
-            min-height: 100px;
+            font-size: 6rem;
+            font-weight: 900;
+            color: #0984e3;
+            margin: 10px 0;
+            min-height: 120px;
+            background: #dfe6e9;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .double-btns {
@@ -242,18 +287,26 @@
         }
 
         .d-btn {
-            padding: 15px 30px;
+            padding: 15px 20px;
             font-size: 1.2rem;
             border: none;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 15px;
             font-weight: bold;
+            flex: 1;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.1);
+            transition: transform 0.1s;
         }
+        
+        .d-btn:active { transform: translateY(5px); box-shadow: none; }
 
         @media (max-width: 400px) {
-            .cabinet { padding: 5px; width: 98%; }
-            .slot span.icon { font-size: 1rem; }
-            .score-value { font-size: 1.1rem; }
+            .cabinet { padding: 10px; width: 95%; border-width: 5px; }
+            .slot span.icon { font-size: 1.1rem; }
+            .score-value { font-size: 1.2rem; }
+            .action-row { height: 50px; }
+            .btn-action { font-size: 0.9rem; }
+            .center-title { font-size: 1.4rem; }
         }
     </style>
 </head>
@@ -289,15 +342,15 @@
         <!-- Header -->
         <div class="scoreboard">
             <div class="score-box">
-                <div class="score-label">CREDIT / 點數</div>
+                <div class="score-label">CREDIT 點數</div>
                 <div class="score-value" id="credit-display">500</div>
             </div>
             <div class="score-box">
-                <div class="score-label">BET / 押分</div>
+                <div class="score-label">BET 押分</div>
                 <div class="score-value" id="bet-display">0</div>
             </div>
             <div class="score-box">
-                <div class="score-label">WIN / 得分</div>
+                <div class="score-label">WIN 得分</div>
                 <div class="score-value" id="win-display">0</div>
             </div>
         </div>
@@ -306,8 +359,8 @@
         <div class="game-board" id="board">
             <!-- Generated by JS -->
             <div class="center-panel">
-                <div class="center-title">小瑪莉<br><span style="font-size:0.8em; color:#aaa;">LITTLE MARY</span></div>
-                <div class="message-log" id="message-log">WELCOME! PLACE BET.<br>請下注</div>
+                <div class="center-title">歡樂小瑪莉<br><span style="font-size:0.5em; color:#a4b0be;">HAPPY MARY</span></div>
+                <div class="message-log" id="message-log">歡迎遊玩！請下注<br>Welcome</div>
             </div>
         </div>
 
@@ -320,26 +373,26 @@
 
             <!-- Game Actions -->
             <div class="action-row">
-                <button class="btn-action btn-red" onclick="clearBet()">Clear<br>清除</button>
-                <button class="btn-action btn-green" onclick="maxBet()">Max<br>全押</button>
-                <button class="btn-action btn-blue" id="start-btn" onclick="startGame()">START<br>開始</button>
+                <button class="btn-action btn-red" onclick="clearBet()">清除<br><span style="font-size:0.6em">Clear</span></button>
+                <button class="btn-action btn-green" onclick="maxBet()">全押<br><span style="font-size:0.6em">Max</span></button>
+                <button class="btn-action btn-blue" id="start-btn" onclick="startGame()">開始遊戲<br><span style="font-size:0.6em">START</span></button>
             </div>
         </div>
 
         <!-- Double Up Modal -->
         <div id="double-modal">
             <div class="modal-content">
-                <h2>DOUBLE UP? / 比大小</h2>
-                <p>Current Win: <span id="double-current-win" style="color:#f1c40f">0</span></p>
+                <h2>比大小！</h2>
+                <p style="font-size: 1.2rem;">目前獎金: <span id="double-current-win" style="color:#ff7675; font-weight:bold;">0</span></p>
                 <div class="big-number" id="double-number">?</div>
-                <p id="double-result-text"></p>
+                <p id="double-result-text" style="font-weight: bold; color:#636e72;">猜大或猜小？</p>
                 
                 <div class="double-btns" id="double-controls">
-                    <button class="d-btn" style="background:#3498db; color:white;" onclick="playDouble('small')">SMALL (1-5)<br>小</button>
-                    <button class="d-btn" style="background:#e74c3c; color:white;" onclick="playDouble('big')">BIG (6-10)<br>大</button>
+                    <button class="d-btn" style="background:#74b9ff; color:white;" onclick="playDouble('small')">小 SMALL<br>(1-5)</button>
+                    <button class="d-btn" style="background:#ff7675; color:white;" onclick="playDouble('big')">大 BIG<br>(6-10)</button>
                 </div>
                 <div class="double-btns" style="justify-content: center;">
-                     <button class="d-btn" style="background:#2ecc71; color:white; width: 100%;" onclick="takeWin()">TAKE WIN / 收分</button>
+                     <button class="d-btn" style="background:#55efc4; color:#006266; width: 100%; box-shadow: 0 5px 0 #00b894;" onclick="takeWin()">收下獎金<br>TAKE WIN</button>
                 </div>
             </div>
         </div>
@@ -348,8 +401,6 @@
 
     <script>
         // --- GAME DATA CONFIGURATION ---
-        // Symbols: Name, Multiplier, Icon, Weight (Frequency in the 24 slots)
-        // Weights must sum to 24 for the board generation logic below to work perfectly.
         const symbolTypes = {
             'bar':    { name: 'BAR', mult: 100, icon: '💎', label: 'BAR' },
             'seven':  { name: '77', mult: 20, icon: '7️⃣', label: '77' },
@@ -361,7 +412,6 @@
             'apple':  { name: 'Apple', mult: 5, icon: '🍎', label: '蘋' }
         };
 
-        // The 24-slot board layout configuration (indices 0-23)
         const boardMap = [
             'orange', 'bell', 'bar', 'bell', 'orange', 'apple', 'apple', // 0-6 (Top)
             'lemon', 'seven', 'water', 'star', 'apple',             // 7-11 (Right)
@@ -369,19 +419,17 @@
             'lemon', 'bell', 'orange', 'apple', 'apple'             // 19-23 (Left)
         ];
 
-        // Ensure we have exactly 24 items
         const finalBoard = boardMap.slice(0, 24);
 
         // --- STATE VARIABLES ---
         let credits = 500;
-        let currentBets = {}; // Object to store bets per symbol key
+        let currentBets = {}; 
         let totalBet = 0;
         let currentWin = 0;
         let isSpinning = false;
-        let activeIndex = 0; // Which LED is lit
+        let activeIndex = 0; 
         let audioCtx = null;
 
-        // Initialize Bets
         Object.keys(symbolTypes).forEach(k => currentBets[k] = 0);
 
         // --- DOM ELEMENTS ---
@@ -400,15 +448,12 @@
             updateUI();
         }
 
-        // Create the HTML Grid for the board
         function renderBoard() {
-            // We need to place them in a CSS Grid 7x7
-            // Perimeter calculation logic
             const posMap = [
-                {r:1, c:1}, {r:1, c:2}, {r:1, c:3}, {r:1, c:4}, {r:1, c:5}, {r:1, c:6}, {r:1, c:7}, // Top 0-6
-                {r:2, c:7}, {r:3, c:7}, {r:4, c:7}, {r:5, c:7}, {r:6, c:7}, // Right 7-11
-                {r:7, c:7}, {r:7, c:6}, {r:7, c:5}, {r:7, c:4}, {r:7, c:3}, {r:7, c:2}, {r:7, c:1}, // Bottom 12-18
-                {r:6, c:1}, {r:5, c:1}, {r:4, c:1}, {r:3, c:1}, {r:2, c:1} // Left 19-23
+                {r:1, c:1}, {r:1, c:2}, {r:1, c:3}, {r:1, c:4}, {r:1, c:5}, {r:1, c:6}, {r:1, c:7}, 
+                {r:2, c:7}, {r:3, c:7}, {r:4, c:7}, {r:5, c:7}, {r:6, c:7}, 
+                {r:7, c:7}, {r:7, c:6}, {r:7, c:5}, {r:7, c:4}, {r:7, c:3}, {r:7, c:2}, {r:7, c:1}, 
+                {r:6, c:1}, {r:5, c:1}, {r:4, c:1}, {r:3, c:1}, {r:2, c:1} 
             ];
 
             finalBoard.forEach((key, index) => {
@@ -427,9 +472,7 @@
             });
         }
 
-        // Create Betting Buttons
         function renderBetButtons() {
-            // Order by logic (usually low to high or grouped)
             const order = ['apple', 'orange', 'lemon', 'bell', 'star', 'water', 'seven', 'bar'];
             
             order.forEach(key => {
@@ -447,7 +490,7 @@
             });
         }
 
-        // --- AUDIO SYSTEM (Web Audio API) - ENHANCED ---
+        // --- AUDIO SYSTEM (Web Audio API) ---
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
@@ -464,7 +507,6 @@
             const now = audioCtx.currentTime;
 
             if (type === 'tick') {
-                // Running light sound (Woodblock style)
                 osc.type = 'square';
                 osc.frequency.setValueAtTime(800, now);
                 osc.frequency.exponentialRampToValueAtTime(100, now + 0.03);
@@ -472,9 +514,7 @@
                 gain.gain.linearRampToValueAtTime(0, now + 0.03);
                 osc.start(now);
                 osc.stop(now + 0.03);
-
             } else if (type === 'bet') {
-                // Bet coin sound (High pitch ping)
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(1200, now);
                 osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
@@ -482,9 +522,7 @@
                 gain.gain.linearRampToValueAtTime(0, now + 0.1);
                 osc.start(now);
                 osc.stop(now + 0.1);
-
             } else if (type === 'start') {
-                // Start spin sound (Power up)
                 osc.type = 'square';
                 osc.frequency.setValueAtTime(220, now);
                 osc.frequency.linearRampToValueAtTime(880, now + 0.2);
@@ -492,9 +530,7 @@
                 gain.gain.linearRampToValueAtTime(0, now + 0.2);
                 osc.start(now);
                 osc.stop(now + 0.2);
-
             } else if (type === 'clear') {
-                // Clear sound (Low cancel)
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(300, now);
                 osc.frequency.linearRampToValueAtTime(50, now + 0.15);
@@ -502,25 +538,19 @@
                 gain.gain.linearRampToValueAtTime(0, now + 0.15);
                 osc.start(now);
                 osc.stop(now + 0.15);
-
             } else if (type === 'win') {
-                // Win fanfare (Major chord arpeggio)
                 osc.type = 'triangle';
-                // C Major Arpeggio
-                osc.frequency.setValueAtTime(523.25, now); // C5
-                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
-                osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                osc.frequency.setValueAtTime(523.25, now); 
+                osc.frequency.setValueAtTime(659.25, now + 0.1); 
+                osc.frequency.setValueAtTime(783.99, now + 0.2); 
+                osc.frequency.setValueAtTime(1046.50, now + 0.3); 
                 
                 gain.gain.setValueAtTime(0.1, now);
                 gain.gain.linearRampToValueAtTime(0.1, now + 0.4);
                 gain.gain.linearRampToValueAtTime(0, now + 0.6);
-                
                 osc.start(now);
                 osc.stop(now + 0.6);
-
             } else if (type === 'lose') {
-                // Lose sound (Sliding down)
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(200, now);
                 osc.frequency.linearRampToValueAtTime(50, now + 0.3);
@@ -538,7 +568,6 @@
             betEl.textContent = totalBet;
             winEl.textContent = currentWin;
 
-            // Update individual bet badges
             Object.keys(currentBets).forEach(key => {
                 const el = document.getElementById(`bet-val-${key}`);
                 if (el) el.textContent = currentBets[key];
@@ -552,34 +581,28 @@
                 currentBets[key]++;
                 totalBet++;
                 updateUI();
-                playSound('bet'); // SOUND
+                playSound('bet');
             } else {
-                log("No Credits! / 點數不足");
+                log("點數不足！<br>No Credits");
             }
         }
 
         function clearBet() {
             if (isSpinning) return;
             if (totalBet === 0) return;
-            
-            // Return bets to credits
             credits += totalBet;
             totalBet = 0;
             Object.keys(currentBets).forEach(k => currentBets[k] = 0);
             updateUI();
-            playSound('clear'); // SOUND
-            log("Bets Cleared / 已清除");
+            playSound('clear');
+            log("下注已清除<br>Cleared");
         }
 
         function maxBet() {
             if (isSpinning) return;
-            
-            clearBet(); // First return everything
-            
+            clearBet();
             const strategy = ['apple', 'orange', 'bell', 'lemon', 'star', 'water', 'seven', 'bar'];
             let added = 0;
-            
-            // Try to add up to 10 credits total distributed
             while (added < 10 && credits > 0) {
                  for (let s of strategy) {
                      if (credits > 0 && added < 10) {
@@ -591,7 +614,7 @@
                  }
             }
             updateUI();
-            playSound('bet'); // SOUND
+            playSound('bet');
         }
 
         function log(text) {
@@ -601,34 +624,28 @@
         function startGame() {
             if (isSpinning) return;
             if (totalBet === 0) {
-                log("Please Bet First! / 請先下注");
+                log("請先下注！<br>Bet First");
                 return;
             }
             
-            playSound('start'); // SOUND
+            playSound('start');
             isSpinning = true;
             currentWin = 0;
             updateUI();
-            log("Spinning... / 跑燈中...");
+            log("跑燈中...<br>Spinning!");
             
-            let speed = 50; // Start speed
-            
-            // Determine result beforehand (Weighted Random via Board Layout)
+            let speed = 50; 
             const targetIndex = Math.floor(Math.random() * finalBoard.length);
-            
-            // Simple animation loop
             let stepCount = 0;
             
             function step() {
-                // Highlight current
                 document.getElementById(`slot-${activeIndex}`).classList.remove('active');
                 activeIndex = (activeIndex + 1) % finalBoard.length;
                 document.getElementById(`slot-${activeIndex}`).classList.add('active');
-                playSound('tick'); // SOUND
+                playSound('tick');
 
                 stepCount++;
 
-                // Logic to simulate mechanical slowing down
                 if (stepCount < 50) {
                     speed = 40;
                 } else if (stepCount < 80) {
@@ -639,12 +656,6 @@
                     speed += 30;
                 }
 
-                // Stop condition: Slow enough AND Landed on target
-                // Actually, arcade machines often pre-calculate. 
-                // Let's just ensure we stop around the target index after minimum spins.
-                
-                // Simplified stop logic for smoother UX without complex math:
-                // Just stop when speed is very slow.
                 if (speed > 300 && stepCount > 60) {
                      finishSpin();
                      return;
@@ -652,7 +663,6 @@
                 
                 setTimeout(step, speed);
             }
-            
             step();
         }
 
@@ -661,24 +671,18 @@
             const symbolKey = finalBoard[activeIndex];
             const symbolData = symbolTypes[symbolKey];
             const betAmount = currentBets[symbolKey];
-            
-            // Calculate Win
             const winAmount = betAmount * symbolData.mult;
             
             if (winAmount > 0) {
                 currentWin = winAmount;
-                playSound('win'); // SOUND
-                log(`<span style="color:yellow">WIN! ${symbolData.label} x${symbolData.mult}</span><br>Win: ${winAmount}`);
+                playSound('win');
+                log(`<span style="color:#d63031">中獎! ${symbolData.label} x${symbolData.mult}</span><br>贏得: ${winAmount}`);
                 updateUI();
-                
-                // Offer Double Up
                 setTimeout(() => {
                     openDoubleModal();
                 }, 1500);
-                
             } else {
-                log(`Result: ${symbolData.label}<br>No Bet. Try Again.`);
-                // No win, game over for this round
+                log(`結果: ${symbolData.label}<br>沒中，再試一次`);
             }
         }
 
@@ -687,7 +691,7 @@
             doubleModal.style.display = "flex";
             document.getElementById('double-current-win').textContent = currentWin;
             document.getElementById('double-number').textContent = "?";
-            document.getElementById('double-result-text').textContent = "Choose Small (1-5) or Big (6-10)";
+            document.getElementById('double-result-text').textContent = "猜大或猜小？";
             document.getElementById('double-controls').style.display = 'flex';
         }
 
@@ -699,17 +703,15 @@
             
             doubleModal.style.display = "none";
             updateUI();
-            playSound('bet'); // Generic sound for taking coins
-            log("Winner! Credits added.");
+            playSound('bet');
+            log("獎金已入帳！<br>Winner");
         }
 
         function playDouble(choice) {
             const controls = document.getElementById('double-controls');
-            controls.style.display = 'none'; // Prevent double clicking
-            
+            controls.style.display = 'none';
             const numDisplay = document.getElementById('double-number');
             
-            // Animation effect
             let ticks = 0;
             const timer = setInterval(() => {
                 numDisplay.textContent = Math.floor(Math.random() * 10) + 1;
@@ -736,28 +738,26 @@
             if (won) {
                 currentWin = currentWin * 2;
                 document.getElementById('double-current-win').textContent = currentWin;
-                document.getElementById('double-result-text').textContent = "YOU WON! Double Again?";
-                playSound('win'); // SOUND
-                document.getElementById('double-controls').style.display = 'flex'; // Show buttons again
+                document.getElementById('double-result-text').textContent = "猜對了！獎金翻倍！";
+                playSound('win');
+                document.getElementById('double-controls').style.display = 'flex';
             } else {
                 currentWin = 0;
-                playSound('lose'); // SOUND
-                document.getElementById('double-result-text').textContent = "YOU LOST. Bad luck.";
+                playSound('lose');
+                document.getElementById('double-result-text').textContent = "猜錯了，獎金歸零...";
                 
                 setTimeout(() => {
                     doubleModal.style.display = "none";
-                    credits += currentWin; // which is 0
+                    credits += currentWin;
                     totalBet = 0;
                     Object.keys(currentBets).forEach(k => currentBets[k] = 0);
                     updateUI();
-                    log("Game Over.");
+                    log("遊戲結束");
                 }, 2000);
             }
         }
 
-        // Start initialization
         init();
-
     </script>
 </body>
 </html>
